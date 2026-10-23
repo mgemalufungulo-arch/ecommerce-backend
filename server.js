@@ -9,12 +9,16 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Kuunganisha na MySQL Database
+// Kuunganisha na MySQL Database (Inasoma Environment Variables za Render/Aiven pamoja na SSL)
 const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',              // mgemalufungulo
-    password: 'bonny@123',     // password yako
-    database: 'ecommerce_db'       // ecommerce_db
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',          
+    password: process.env.DB_PASSWORD || 'bonny@123',    
+    database: process.env.DB_NAME || 'ecommerce_db',
+    port: process.env.DB_PORT || 3306,
+    ssl: {
+        rejectUnauthorized: false // Inaruhusu muunganisho salama unaotakiwa na Aiven
+    }
 });
 
 db.connect((err) => {
@@ -22,7 +26,7 @@ db.connect((err) => {
         console.error('Imeshindwa kuunganisha na Database:', err.message);
         return;
     }
-    console.log('Imeunganishwa vizuri kabisa na MySQL Database!');
+    console.log('Database imeunganishwa kikamilifu na Aiven / MySQL!');
 });
 
 // Jaribio la kwanza la API route
@@ -116,7 +120,7 @@ app.delete('/api/products/:id', (req, res) => {
     });
 });
 
-// 6. API ya Kusajili Mteja Mpya (Register) - Imerekebishwa kuwa /api/users/register
+// 6. API ya Kusajili Mteja Mpya (Register)
 app.post('/api/users/register', (req, res) => {
     const { name, email, password } = req.body;
 
@@ -138,7 +142,7 @@ app.post('/api/users/register', (req, res) => {
     });
 });
 
-// 7. API ya Mteja Kuingia kwenye Mfumo (Login) - Imerekebishwa kuwa /api/users/login
+// 7. API ya Mteja Kuingia kwenye Mfumo (Login)
 app.post('/api/users/login', (req, res) => {
     const { email, password } = req.body;
 
